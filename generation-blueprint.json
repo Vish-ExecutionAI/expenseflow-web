@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "product": {
+    "name": "ExpenseFlow",
+    "summary": "ExpenseFlow"
+  },
+  "frontend": {
+    "framework": "React and Vite",
+    "pages": [
+      "Dashboard",
+      "Transactions",
+      "Expenses",
+      "Users"
+    ],
+    "apiOperations": [
+      "listTransactions",
+      "createTransaction",
+      "listExpenses",
+      "createExpense",
+      "listUsers",
+      "createUser"
+    ]
+  },
+  "backend": {
+    "runtime": "Node.js and Express",
+    "routes": [
+      {
+        "method": "GET",
+        "path": "/api/transactions"
+      },
+      {
+        "method": "POST",
+        "path": "/api/transactions"
+      },
+      {
+        "method": "GET",
+        "path": "/api/expenses"
+      },
+      {
+        "method": "POST",
+        "path": "/api/expenses"
+      },
+      {
+        "method": "GET",
+        "path": "/api/users"
+      },
+      {
+        "method": "POST",
+        "path": "/api/users"
+      }
+    ],
+    "resources": [
+      {
+        "singular": "transaction",
+        "plural": "transactions"
+      },
+      {
+        "singular": "expense",
+        "plural": "expenses"
+      },
+      {
+        "singular": "user",
+        "plural": "users"
+      }
+    ]
+  },
+  "database": {
+    "engine": "PostgreSQL",
+    "resources": [
+      "transactions",
+      "expenses",
+      "users"
+    ]
+  },
+  "environments": [
+    "Development",
+    "Test",
+    "Production"
+  ],
+  "source": {
+    "discussion": "ExpenseFlow is a personal expense-management application.\n\nUsers must be able to create an account and sign in. After signing in, users can record an expense with an amount, category, transaction date, payment method, and optional description.\n\nThe dashboard should show total monthly spending, recent transactions, and expenses grouped by category. Users should be able to view, create, edit, and delete their own expenses.\n\nEach user must only have access to their own data. The frontend should be responsive and usable on desktop and mobile devices.\n\nThe backend should expose REST APIs and store users, expenses, and transactions in PostgreSQL. Input must be validated, API errors should use a consistent JSON format, and health-check endpoints should be available.\n\nThe application needs Development, Test, and Production environments.",
+    "plan": "Phase 1: Foundation\n- Create React frontend and Node.js/Express backend.\n- Configure PostgreSQL and database migrations.\n- Add environment-based configuration.\n- Add authentication and organization-scoped access.\n\nPhase 2: Core functionality\n- Add registration and login.\n- Add expense CRUD APIs.\n- Add transaction listing and filtering.\n- Build dashboard and expense-entry screens.\n- Connect the frontend to the backend APIs.\n\nPhase 3: Reporting\n- Add monthly spending totals.\n- Add category summaries.\n- Add recent transaction reporting.\n\nPhase 4: Quality and delivery\n- Add unit and API tests.\n- Add linting and build verification.\n- Add frontend and backend CI workflows.\n- Prepare Development, Test, and Production configuration.",
+    "sketchName": null
+  }
+}
