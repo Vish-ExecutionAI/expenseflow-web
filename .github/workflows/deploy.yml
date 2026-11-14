@@ -3,8 +3,8 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        type: choice
-        options: [Development, Test, Production]
+        type: string
+        description: Execution AI environment name
         required: true
       provider:
         type: choice
