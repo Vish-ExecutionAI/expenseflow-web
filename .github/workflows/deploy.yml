@@ -30,11 +30,10 @@ jobs:
         if: ${{ inputs.provider == 'github' }}
         with:
           node-version: 22
-          cache: npm
       - name: Build frontend preview
         if: ${{ inputs.provider == 'github' }}
         run: |
-          npm ci
+          npm install --no-audit --no-fund
           npm run build -- --base "/${{ github.event.repository.name }}/"
       - name: Configure GitHub Pages
         if: ${{ inputs.provider == 'github' }}
