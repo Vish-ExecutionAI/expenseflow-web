@@ -6,10 +6,46 @@ on:
         type: choice
         options: [Development, Test, Production]
         required: true
+      provider:
+        type: choice
+        options: [github, aws, gcp]
+        required: true
+      aws_region:
+        type: string
+      aws_role_arn:
+        type: string
+      gcp_project_id:
+        type: string
+      gcp_workload_identity_provider:
+        type: string
+      gcp_service_account:
+        type: string
+permissions:
+  contents: read
+  id-token: write
 jobs:
   deploy:
-    environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: echo "Connect the selected cloud deployment adapter here"
+      - name: Authenticate to AWS with OIDC
+        if: ${{ inputs.provider == 'aws' }}
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          role-to-assume: ${{ inputs.aws_role_arn }}
+          aws-region: ${{ inputs.aws_region }}
+      - name: Authenticate to Google Cloud with Workload Identity Federation
+        if: ${{ inputs.provider == 'gcp' }}
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: ${{ inputs.gcp_project_id }}
+          workload_identity_provider: ${{ inputs.gcp_workload_identity_provider }}
+          service_account: ${{ inputs.gcp_service_account }}
+      - run: echo "Deploying to ${{ inputs.environment }}"
+      - name: Run repository deployment adapter
+        run: |
+          if [ -x scripts/deploy.sh ]; then
+            scripts/deploy.sh "${{ inputs.provider }}" "${{ inputs.environment }}"
+          else
+            echo "Add scripts/deploy.sh to deploy this repository"
+          fi
