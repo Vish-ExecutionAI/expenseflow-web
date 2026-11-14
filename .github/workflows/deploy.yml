@@ -8,41 +8,57 @@ on:
         required: true
       provider:
         type: choice
-        options: [github, aws, gcp]
+        options: [github, aws]
         required: true
       aws_region:
         type: string
       aws_role_arn:
         type: string
-      gcp_project_id:
-        type: string
-      gcp_workload_identity_provider:
-        type: string
-      gcp_service_account:
-        type: string
 permissions:
   contents: read
   id-token: write
+  pages: write
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.provider == 'github' && 'github-pages' || inputs.environment }}
+      url: ${{ inputs.provider == 'github' && steps.pages.outputs.page_url || '' }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        if: ${{ inputs.provider == 'github' }}
+        with:
+          node-version: 22
+          cache: npm
+      - name: Build frontend preview
+        if: ${{ inputs.provider == 'github' }}
+        run: |
+          npm ci
+          npm run build -- --base "/${{ github.event.repository.name }}/"
+      - name: Configure GitHub Pages
+        if: ${{ inputs.provider == 'github' }}
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Upload GitHub Pages artifact
+        if: ${{ inputs.provider == 'github' }}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - name: Publish frontend preview
+        id: pages
+        if: ${{ inputs.provider == 'github' }}
+        uses: actions/deploy-pages@v4
       - name: Authenticate to AWS with OIDC
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v6.3.0
         with:
           role-to-assume: ${{ inputs.aws_role_arn }}
           aws-region: ${{ inputs.aws_region }}
-      - name: Authenticate to Google Cloud with Workload Identity Federation
-        if: ${{ inputs.provider == 'gcp' }}
-        uses: google-github-actions/auth@v3
-        with:
-          project_id: ${{ inputs.gcp_project_id }}
-          workload_identity_provider: ${{ inputs.gcp_workload_identity_provider }}
-          service_account: ${{ inputs.gcp_service_account }}
       - run: echo "Deploying to ${{ inputs.environment }}"
       - name: Run repository deployment adapter
+        if: ${{ inputs.provider != 'github' }}
         run: |
           if [ -x scripts/deploy.sh ]; then
             scripts/deploy.sh "${{ inputs.provider }}" "${{ inputs.environment }}"
